@@ -73,14 +73,42 @@ console.dir(vars)
 
 ## API
 
-### `sast.parse(source [, options])`
+### `sast.parse(source [, options])` <a name="parse"></a>
 Synchronously parse the CSS, Sass, or SCSS source text (a string) into an
 abstract source tree (AST). The default syntax is CSS (`{syntax: 'css'}`);
 other acceptable values are `sass`, `scss`, and `less`. See the [gonzales
-docs](https://github.com/tonyganch/gonzales-pe#parameters-1) for more info.
+docs](https://github.com/tonyganch/gonzales-pe#parameters-1) for more info. To
+parse files by path, use [`parseFile()`](#parse-file).
 
-### `sast.stringify(node)`
+### `sast.stringify(node)` <a name="stringify"></a>
 Format the resulting AST back into a string, presumably after manipulating it.
+
+### `sast.jsonify(node)` <a name="jsonify"></a>
+Coerce the given AST node into JSON data, according to the following rules:
+
+1. Numbers are numbers: `1` -> `1`, not `"1"`.
+1. Lists become arrays: `(a, 1)` -> `["a", 1]`
+1. [Maps][Sass maps] become objects: `(x: 1)` -> `{x: 1}`
+1. Lists and maps can be nested!
+1. Everything else is [stringified](#stringify), and _should_ be preserved in
+   its original form:
+   * Sass/SCSS variables should preserve their leading `$`.
+   * Hex colors should preserve their leading `#`.
+   * `rgb()`, `rgba()`, `hsl()`, `hsla()`, and any other functions should
+     preserve their parentheses.
+   * Parentheses that are not parsed as lists or maps should be preserved.
+
+### `sast.parseFile(filename [, parseOptions={} [, readOptions='utf8'])` <a name="parse-file"></a>
+Read a file and parse its contents, returning a Promise. If no
+`parseOptions.syntax` is provided, or its value is `auto`, the filename's
+extension will be used as the `syntax` option passed to [`parse()`](#parse).
+
+```js
+const {parseFile} = require('sast')
+parseFile('path/to/some.scss')
+  .then(tree => console.dir(tree, {depth: null}))
+  .catch(error => console.error('Parse error:', error))
+```
 
 ## Node types
 Most [node types] are defined by [gonzalez-pe], the underlying parser. After
