@@ -111,15 +111,24 @@ transforming each of the syntax tree nodes into [unist nodes], the following
 nodes are introduced:
 
 ### Maps
-Any `parentheses` node whose first `operator` is a `:` is parsed as a [Sass
-map] and recast as a `map` node. The `children` are preserved, and key/value
-pairs separated by `:` and delimited by `,` are placed in the `values` property
-as an array of objects with `key` and `value` properties, each of which is a
-plain old node list. So:
+Any `parentheses` node whose first `operator` child is a `:` is interpreted as
+a [Sass map] and recast as a `map` node. The `children` are preserved as-is,
+and key/value pairs separated by `:` and delimited by `,` are placed in the
+`values` property as an array of objects with `key` and `value` properties,
+each of which is a plain old node list. Some examples:
 
-```js
+* `(x: 1)` will be [jsonified](#jsonify) as `{x: 1}`
+* `(x: a, y: 2)` will be interpreted as `{x: "a", y: 2}`
 
-```
+### Lists
+Any `parentheses` node whose first `operator` child is a `,` is interpreted as
+a list (array) and recast as a `list` node. The `children` are perserved as-is,
+and children that aren't `space` nodes are split into subgroups by each `,`
+operator and converted into `value` nodes with one or more children, then
+placed in the `values` property of the `list` node. Some examples:
+
+* `(1, x)` will be [jsonified](#jsonify) as `[1, "x"]`
+* `(a, (b, c))` will be intepreted as `["a", ["b", "c"]]`
 
 
 [gonzales]: https://github.com/tonyganch/gonzales-pe
