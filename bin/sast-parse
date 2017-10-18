@@ -1,0 +1,38 @@
+#!/usr/bin/env node
+const fse = require('fs-extra')
+const inspect = require('unist-util-inspect')
+const is = require('unist-util-is')
+const removePosition = require('unist-util-remove-position')
+const yaml = require('js-yaml')
+const {parse, stringify} = require('..')
+const visit = require('unist-util-visit')
+
+const args = process.argv.slice(2)
+const options = {
+  syntax: 'scss',
+  trim: true,
+}
+
+const input = args.shift() || '/dev/stdin'
+
+fse.readFile(input, 'utf8')
+  .then(source => {
+    if (options.trim) {
+      source = source.trim()
+    }
+    return parse(source, options)
+  })
+  .catch(error => {
+    console.error(error)
+    process.exit(1)
+  })
+  .then(tree => {
+    if (!options.verbose) {
+      removePosition(tree, true)
+      visit(tree, 'list', n => delete n.values)
+      visit(tree, 'map',  n => delete n.values)
+    }
+    console.log(inspect.noColor(tree))
+    console.log('⬇')
+    console.log(stringify(tree))
+  })

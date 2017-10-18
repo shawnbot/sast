@@ -1,0 +1,38 @@
+#!/usr/bin/env node
+const fse = require('fs-extra')
+const select = require('unist-util-select')
+const {parseFile, jsonify, stringify} = require('..')
+
+const STDIN = '/dev/stdin'
+const PARSE_DEFAULTS = {syntax: 'scss'}
+
+const args = process.argv.slice(2)
+const reads = (args.length ? args : ['-'])
+  .map(file => file === '-' ? STDIN : file)
+  .map(file => parseFile(file, file === STDIN ? PARSE_DEFAULTS : {}))
+
+const getVariables = tree => {
+  return select(tree, 'stylesheet > declaration')
+    .reduce((acc, node) => {
+      const {name, value} = jsonify(node)
+      if (name) {
+        acc[name] = value
+      }
+      return acc
+    }, {})
+}
+
+Promise.all(reads)
+  .then(files => {
+    return files.reduce((acc, tree) => {
+      const vars = getVariables(tree)
+      console.warn('found %d variable declarations in %s',
+                   Object.keys(vars).length, tree.source)
+      return Object.assign(acc, vars)
+    }, {})
+  })
+  .catch(error => {
+    console.error(error)
+    process.exit(1)
+  })
+  .then(vars => console.dir(vars))
