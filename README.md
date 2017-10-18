@@ -106,7 +106,7 @@ you don't have the ability to go in the other direction.
 Run `sast-data --help` for available options and more information.
 
 ## Node types
-Most [node types] are defined by [gonzalez-pe], the underlying parser. After
+Most [node types] are defined by [gonzalez], the underlying parser. After
 transforming each of the syntax tree nodes into [unist nodes], the following
 nodes are introduced:
 
