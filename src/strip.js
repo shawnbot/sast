@@ -1,12 +1,11 @@
 const is = require('unist-util-is')
 
 module.exports = (test, nodes) => {
-  const slice = nodes.slice()
-  while (slice.length && is(test, slice[0])) {
-    slice.shift()
+  while (nodes.length && is(test, nodes[0])) {
+    nodes.shift()
   }
-  while (slice.length && is(test, slice[slice.length - 1])) {
-    slice.pop()
+  while (nodes.length && is(test, nodes[nodes.length - 1])) {
+    nodes.pop()
   }
-  return slice
+  return nodes
 }

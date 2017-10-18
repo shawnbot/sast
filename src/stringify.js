@@ -1,6 +1,10 @@
+const invariant = require('invariant')
+
 const stringify = node => {
+  invariant(node, 'You must provide a node to stringify()')
+
   if (Array.isArray(node)) {
-    return stringify({children: node})
+    throw new Error('Expected node object in stringify(), but got Array')
   }
 
   if (node.children) {

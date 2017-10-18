@@ -1,13 +1,14 @@
-const find = require('unist-util-find')
+const select = require('unist-util-select')
 const invariant = require('invariant')
+const is = require('unist-util-is')
 const listify = require('./listify')
 const mapify = require('./mapify')
+const {COLON, COMMA} = require('./constants')
 
-const COMMA = ','
-const COLON = ':'
+const isOperator = node => is([COLON, COMMA], node)
 
 const parens = node => {
-  const op = find(node, {type: 'operator'})
+  const op = node.children.filter(isOperator)[0]
   invariant(
     op,
     `Expected at least one "operator" child; got: ${
@@ -15,8 +16,8 @@ const parens = node => {
     }`
   )
   switch (op.value) {
-    case COLON: return mapify(node)
-    case COMMA: return listify(node)
+    case COLON.value: return mapify(node)
+    case COMMA.value: return listify(node)
   }
   return node
 }
@@ -26,9 +27,11 @@ const transforms = {
 }
 
 module.exports = node => {
-  const transform = transforms[node.type]
+  const {type} = node
+  const transform = transforms[type]
   if (typeof transform === 'function') {
-    return transform(node)
+    node = transform(node)
+    return node
   }
   return node
 }

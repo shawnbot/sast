@@ -1,22 +1,25 @@
 const inspect = require('unist-util-inspect')
+const invariant = require('invariant')
 const is = require('unist-util-is')
 const split = require('./split')
 const strip = require('./strip')
 const stringify = require('./stringify')
-
-const COMMA = {type: 'operator', value: ','}
-const COLON = {type: 'operator', value: ':'}
-const MAP = 'map'
-const SPACE = 'space'
+const {COLON, COMMA, MAP, PARENS, SPACE} = require('./constants')
 
 module.exports = node => {
-  return Object.assign({}, node, {
+  invariant(node.type === PARENS, `Expected a ${PARENS} node, but got "${node.type}"`)
+  return Object.assign(node, {
     type: MAP,
     values: split(node.children, COMMA)
       .map(part => {
-        const [key, value] = split(part, COLON)
+        const [[name], [value]] = split(part, COLON)
           .map(d => strip(SPACE, d))
-        return {key, value}
+        return {
+          type: 'name-value',
+          name,
+          value: value,
+          children: part
+        }
       }),
   })
 }
