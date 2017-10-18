@@ -1,5 +1,8 @@
+const path = require('path')
 const test = require('ava')
-const {parse, stringify} = require('..')
+const {parse, parseFile, stringify} = require('..')
+
+const fixture = (...args) => path.resolve(__dirname, 'fixtures', ...args)
 
 test('it parses SCSS by default', t => {
   const root = parse('$foo: bar')
@@ -30,13 +33,20 @@ test('it parses maps', t => {
   t.is(map.type, 'map')
   t.is(map.values.length, 2)
   t.deepEqual(
-    map.values.map(({key, value}) => ({
-      key: stringify(key),
+    map.values.map(({name, value}) => ({
+      name: stringify(name),
       value: stringify(value),
     })),
     [
-      {key: 'a', value: 'b'},
-      {key: 'c', value: 'd'},
+      {name: 'a', value: 'b'},
+      {name: 'c', value: 'd'},
     ]
   )
+})
+
+test('it parses files', t => {
+  return parseFile(fixture('basic.scss'))
+    .then(tree => {
+      t.is(tree.type, 'stylesheet')
+    })
 })
