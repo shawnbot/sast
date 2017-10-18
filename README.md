@@ -37,40 +37,6 @@ import {parse} from 'sast'
 const tree = parse('a { color: $red; }', {syntax: 'scss'})
 ```
 
-## Examples
-
-### Get all of the top-level variable declarations
-Let's say that you have a bunch of variables declared in an SCSS partial, and
-you'd like to read their values programmatically so that you can use them in a
-context other than CSS:
-
-```scss
-// vars.scss
-$blue: #0f0;
-$red: #f00;
-$green: #00f;
-```
-
-```js
-const {readFileSync} = require('fs')
-const {parse, stringify} = require('sast')
-const select = require('unist-util-select')
-
-const scss = readFileSync('vars.scss', 'utf8')
-const tree = parse(scss, {syntax: 'scss'})
-const declarations = select(tree, 'stylesheet > declaration')
-
-const vars = declarations.reduce((map, node) => {
-  const key = stringify(select(node, 'property ident')[0])
-  const value = stringify(select(node, 'value')[0])
-  map[key] = value
-  return map
-}, {})
-
-console.dir(vars)
-```
-
-
 ## API
 
 ### `sast.parse(source [, options])` <a name="parse"></a>
@@ -110,6 +76,35 @@ parseFile('path/to/some.scss')
   .catch(error => console.error('Parse error:', error))
 ```
 
+## CLI
+The `sast` [npm package] comes with two command line utilities:
+
+### `sast-parse`
+Parses a file or stdin as a given syntax, applies one or more simplifying
+transformations, then outputs the resulting syntax tree in a variety of
+formats:
+
+* JSON: the raw syntax tree in object form, which can be passed to other CLIs.
+* [YAML]: an easier-to-read alternative to JSON, also suitable for piping to
+  other CLIs.
+* Tree: a text representation of the syntax tree provided by
+  [unist-util-inspect](https://github.com/syntax-tree/unist-util-inspect).
+* Text: the [stringified](#stringify) syntax tree, which is hopefully valid for
+  the given syntax.
+
+Run `sast-parse --help` for available options.
+
+### `sast-data`
+Parses one or more SCSS (the only supported syntax at this time) files, and
+transforms all top-level variable declarations into key-value pairs. The result
+is a JSON object in which each key is a variable name, and the value is the
+[jsonified](#jsonify) variable value.
+
+This is useful for generating [design tokens] from existing SCSS variables if
+you don't have the ability to go in the other direction.
+
+Run `sast-data --help` for available options and more information.
+
 ## Node types
 Most [node types] are defined by [gonzalez-pe], the underlying parser. After
 transforming each of the syntax tree nodes into [unist nodes], the following
@@ -133,3 +128,5 @@ plain old node list. So:
 [unist]: https://github.com/syntax-tree/unist
 [unist nodes]: https://github.com/syntax-tree/unist#unist-nodes
 [utilities]: https://github.com/syntax-tree/unist#list-of-utilities
+[npm package]: https://npmjs.com/package/sast
+[YAML]: https://en.wikipedia.org/wiki/YAML
