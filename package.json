@@ -26,6 +26,7 @@
     "gonzales-pe": "^4.2.2",
     "invariant": "^2.2.2",
     "js-yaml": "^3.10.0",
+    "minimatch": "^3.0.4",
     "unist-util-find": "^1.0.1",
     "unist-util-inspect": "^4.1.1",
     "unist-util-is": "^2.1.1",

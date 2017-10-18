@@ -2,14 +2,59 @@
 const fse = require('fs-extra')
 const select = require('unist-util-select')
 const {parseFile, jsonify, stringify} = require('..')
+const YAML = require('js-yaml')
+
+const yargs = require('yargs')
+  .usage('$0 [options] [<filenames>]')
+  .option('syntax', {
+    desc: `The specific syntax to parse as, or 'auto' to determine from the filename.`,
+    alias: 's',
+  })
+  .option('format', {
+    desc: 'Output format',
+    alias: 'f',
+    default: 'json',
+  })
+  .option('pretty', {
+    desc: 'Prettify output',
+    alias: 'p',
+    type: 'boolean',
+  })
+  .option('grep', {
+    desc: 'Only include variable names that match the given glob-like pattern.',
+    alias: 'g',
+    type: 'string',
+  })
+
+const formatters = {
+  'json': (data, {pretty}) => {
+    const indent = pretty ? 2 : 0
+    return JSON.stringify(data, null, ' '.repeat(indent))
+  },
+  'yaml': (data, {pretty}) => {
+    const indent = pretty ? 2 : 0
+    const opts = {indent}
+    return YAML.safeDump(data, 'utf8', opts)
+  },
+}
+
+const options = yargs.argv
+const args = options._
 
 const STDIN = '/dev/stdin'
-const PARSE_DEFAULTS = {syntax: 'scss'}
+const DASH = '-'
+const STDIN_OVERRIDES = {
+  syntax: options.syntax === 'auto' ? 'scss' : options.syntax
+}
 
-const args = process.argv.slice(2)
-const reads = (args.length ? args : ['-'])
-  .map(file => file === '-' ? STDIN : file)
-  .map(file => parseFile(file, file === STDIN ? PARSE_DEFAULTS : {}))
+const reads = (args.length ? args : [STDIN])
+  .map(file => file === DASH ? STDIN : file)
+  .map(file => {
+    const opts = file === STDIN
+      ? Object.assign({}, options, STDIN_OVERRIDES)
+      : options
+    return parseFile(file, opts, 'utf8')
+  })
 
 const getVariables = tree => {
   return select(tree, 'stylesheet > declaration')
@@ -35,4 +80,22 @@ Promise.all(reads)
     console.error(error)
     process.exit(1)
   })
-  .then(vars => console.dir(vars))
+  .then(vars => {
+    const {grep, format} = options
+    if (grep) {
+      console.warn('grepping: "%s"', grep)
+      vars = Object.keys(vars)
+        .filter(key => minimatch(key, grep))
+        .reduce((filtered, key) => {
+          filtered[key] = vars[key]
+          return filtered
+        }, {})
+    }
+    const fmt = formatters[format]
+    const output = fmt(vars, options)
+    console.log(output)
+  })
+  .catch(error => {
+    console.error(error)
+    process.exit(1)
+  })
