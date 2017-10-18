@@ -20,7 +20,7 @@
   ],
   "repository": "github:shawnbot/sast",
   "author": "Shawn Allen <shawn.allen@github.com>",
-  "license": "MIT",
+  "license": "Unlicense",
   "dependencies": {
     "fs-extra": "^4.0.2",
     "gonzales-pe": "^4.2.2",
