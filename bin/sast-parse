@@ -2,22 +2,93 @@
 const fse = require('fs-extra')
 const inspect = require('unist-util-inspect')
 const is = require('unist-util-is')
+const remove = require('unist-util-remove')
 const removePosition = require('unist-util-remove-position')
-const yaml = require('js-yaml')
-const {parse, stringify} = require('..')
+const YAML = require('js-yaml')
+const {jsonify, parse, stringify} = require('..')
 const visit = require('unist-util-visit')
 
-const args = process.argv.slice(2)
-const options = {
-  syntax: 'scss',
-  trim: true,
+const syntaxes = ['css', 'sass', 'scss', 'less']
+const formatters = {
+  'json': (tree, {pretty, indent}) => {
+    indent = pretty ? 2 : indent
+    return JSON.stringify(tree, null, ' '.repeat(indent))
+  },
+  'string': stringify,
+  'tree': tree => inspect.noColor(tree),
+  'yaml': (tree, {pretty, indent, flowLevel}) => {
+    const opts = pretty
+      ? {indent: 2}
+      : {indent, flowLevel}
+    return YAML.safeDump(tree, 'utf8', opts)
+  }
 }
 
+const validateChoice = (name, choices) => {
+  return choice => {
+    if (choices.indexOf(choice) === -1) {
+      throw new Error(
+        `Invalid ${name}: "${choice}"; expected on of: ${
+          choices.map(c => '"' + c + '"').join(', ')}`
+      )
+    }
+    return choice
+  }
+}
+
+const yargs = require('yargs')
+  .usage([
+    '$0 [options] [<filename>]',
+    '',
+    'Parse a CSS, Sass, SCSS, or Less file and output its syntax tree in one of several formats.'
+  ].join('\n'))
+  .option('syntax', {
+    desc: `Specify the sytax to parse as: ${syntaxes.join(', ')}`,
+    default: syntaxes[0],
+    alias: 's',
+    type: 'string',
+    coerce: validateChoice('syntax', syntaxes),
+  })
+  .option('format', {
+    desc: `Specify the output format: ${Object.keys(formatters).join(', ')}`,
+    type: 'string',
+    alias: 'f',
+    default: 'json',
+    coerce: validateChoice('format', Object.keys(formatters)),
+  })
+  .option('pretty', {
+    desc: 'Output prettily (for "json" and "yaml" formats only)',
+    type: 'boolean',
+  })
+  .option('trim', {
+    desc: 'Trim leading and trailing whitespace from the input',
+    alias: 't',
+    type: 'boolean',
+  })
+  .option('no-whitespace', {
+    desc: 'Discard whitespace in the syntax tree before printing',
+    alias: 'W',
+    type: 'boolean',
+  })
+  .option('no-position', {
+    desc: 'Preserve position data in the syntax tree before printing',
+    alias: 'P',
+    type: 'boolean',
+  })
+  .strict(true)
+
+const options = yargs.argv
+const args = options._
+delete options._
+// console.warn('[x] options:', options)
+
 const input = args.shift() || '/dev/stdin'
+const format = formatters[options.format]
 
 fse.readFile(input, 'utf8')
   .then(source => {
     if (options.trim) {
+      // console.warn('[x] trimming the input')
       source = source.trim()
     }
     return parse(source, options)
@@ -27,12 +98,14 @@ fse.readFile(input, 'utf8')
     process.exit(1)
   })
   .then(tree => {
-    if (!options.verbose) {
+    if (options.noPosition) {
+      // console.warn('[x] removing position data')
       removePosition(tree, true)
-      visit(tree, 'list', n => delete n.values)
-      visit(tree, 'map',  n => delete n.values)
     }
-    console.log(inspect.noColor(tree))
-    console.log('⬇')
-    console.log(stringify(tree))
+    if (options.noWhitespace) {
+      // console.warn('[x] removing whitespace')
+      remove(tree, 'space')
+    }
+    const output = format(tree, options)
+    console.log(output)
   })
