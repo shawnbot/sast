@@ -6,7 +6,7 @@ const SYNTAX_AUTO = 'auto'
 const parseFile = (filename, parseOptions={}, readOptions='utf8') => {
   let {syntax} = parseOptions
   if (!syntax || syntax === SYNTAX_AUTO) {
-    if (filename.indexOf('.') > -1) {
+    if (filename.includes('.')) {
       parseOptions.syntax = filename.split('.').pop()
       // console.warn('detected auto syntax:', syntax)
     } else {
