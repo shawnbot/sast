@@ -31,9 +31,12 @@ const wrap = (before, after) => b => [before, ...b, after]
 const prefix = str => b => [str, ...b]
 const suffix = str => b => [...b, str]
 const parens = wrap('(', ')')
+const curlies = wrap('{', '}')
 
 const mods = {
-  'block': wrap('{', '}'),
+  'arguments': parens,
+  'atkeyword': prefix('@'),
+  'block': curlies,
   // NOTE: colors are only hex colors in gonzales-pe land
   'color': prefix('#'),
   'class': prefix('.'),
