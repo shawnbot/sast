@@ -8,7 +8,7 @@ const parseFile = (filename, parseOptions={}, readOptions='utf8') => {
   if (!syntax || syntax === SYNTAX_AUTO) {
     if (filename.indexOf('.') > -1) {
       parseOptions.syntax = filename.split('.').pop()
-      console.warn('detected auto syntax:', syntax)
+      // console.warn('detected auto syntax:', syntax)
     } else {
       throw new Error(
         `"auto" syntax requires a filename with an extension; got "${filename}"`
