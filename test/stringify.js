@@ -69,6 +69,12 @@ preserves('color values', [
   '$color: rgba(#f00, 0.5)',
 ])
 
+preserves('universal selectors', [
+  '* { box-sizing: border-box; }',
+  '* > li { list-style: none; }',
+  'dl > * { list-style: none; }',
+])
+
 preserves('class selectors', [
   '.foo { }',
   '.foo.bar { }',
@@ -113,4 +119,10 @@ preserves('pseudo-elements', [
 
 preserves('comma-separated values', [
   'x { background: red, green, blue; }',
+])
+
+preserves('URLs', [
+  'a { background-url: url(foo.png); }',
+  'a { background-url: url("foo.png"); }',
+  "a { background-url: url('foo.png'); }",
 ])

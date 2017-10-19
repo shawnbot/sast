@@ -49,6 +49,9 @@ const mods = {
   'pseudoClass': prefix(':'),
   'pseudoElement': prefix('::'),
   'singlelineComment': prefix('//'),
+  'uri': wrap('url(', ')'),
+  // universal selector nodes have no content in gonzales-pe
+  'universalSelector': () => ['*'],
   'variable': prefix('$'),
 }
 
