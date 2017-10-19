@@ -36,16 +36,16 @@ const curlies = wrap('{', '}')
 const mods = {
   'arguments': parens,
   'atkeyword': prefix('@'),
+  'attributeSelector': wrap('[', ']'),
   'block': curlies,
-  // NOTE: colors are only hex colors in gonzales-pe land
+  // NOTE: only hex values are 'color' nodes in gonzales-pe land
   'color': prefix('#'),
   'class': prefix('.'),
-  // functions get their parentheses back
-  'function': ([name, ...args]) => [name, '(', ...args, ')'],
   'list': parens,
   'map': parens,
   'multilineComment': wrap('/*', '*/'),
   'parentheses': parens,
+  'percentage': suffix('%'),
   'pseudoClass': prefix(':'),
   'pseudoElement': prefix('::'),
   'singlelineComment': prefix('//'),
