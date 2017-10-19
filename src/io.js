@@ -18,6 +18,7 @@ const parseFile = (filename, parseOptions={}, readOptions='utf8') => {
   return fse.readFile(filename, readOptions)
     .then(content => parse(content, parseOptions))
     .then(tree => {
+      // the path is immutable, so define it with a getter
       Object.defineProperty(tree.source, 'path', {
         get: () => filename
       })
