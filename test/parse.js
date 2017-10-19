@@ -1,3 +1,4 @@
+const fse = require('fs-extra')
 const path = require('path')
 const test = require('ava')
 const {parse, parseFile, stringify} = require('..')
@@ -45,8 +46,27 @@ test('it parses maps', t => {
 })
 
 test('it parses files', t => {
-  return parseFile(fixture('basic.scss'))
-    .then(tree => {
-      t.is(tree.type, 'stylesheet')
+  return parseFile(fixture('basic.scss')).then(tree => {
+    t.is(tree.type, 'stylesheet')
+  })
+})
+
+test('it remembers the source string', t => {
+  const file = fixture('basic.scss')
+  return fse.readFile(file, 'utf8').then(source => {
+    return parseFile(file).then(tree => {
+      t.is(tree.source.string, source)
+      t.falsy(Object.keys(tree.source).includes('string'),
+              'tree.source.string is enumerable')
     })
+  })
+})
+
+test('it remembers the source path', t => {
+  const file = fixture('basic.scss')
+  return parseFile(file).then(tree => {
+    t.is(tree.source.path, file)
+    t.falsy(Object.keys(tree.source).includes('path'),
+            'tree.source.path is enumerable')
+  })
 })

@@ -18,7 +18,9 @@ const parseFile = (filename, parseOptions={}, readOptions='utf8') => {
   return fse.readFile(filename, readOptions)
     .then(content => parse(content, parseOptions))
     .then(tree => {
-      tree.source = filename
+      Object.defineProperty(tree.source, 'path', {
+        get: () => filename
+      })
       return tree
     })
 }

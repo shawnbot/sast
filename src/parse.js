@@ -12,6 +12,10 @@ const parse = (source, options) => {
     Object.assign({}, PARSE_DEFAULTS, options)
   )
   const tree = degonzify(gtree)
+  Object.defineProperty(tree.source = {}, 'string', {
+    enumerable: false,
+    get: () => source,
+  })
   return unistify(tree)
 }
 
