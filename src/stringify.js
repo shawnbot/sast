@@ -33,13 +33,19 @@ const suffix = str => b => [...b, str]
 const parens = wrap('(', ')')
 
 const mods = {
+  'block': wrap('{', '}'),
   // NOTE: colors are only hex colors in gonzales-pe land
   'color': prefix('#'),
+  'class': prefix('.'),
   // functions get their parentheses back
   'function': ([name, ...args]) => [name, '(', ...args, ')'],
   'list': parens,
   'map': parens,
+  'multilineComment': wrap('/*', '*/'),
   'parentheses': parens,
+  'pseudoClass': prefix(':'),
+  'pseudoElement': prefix('::'),
+  'singlelineComment': prefix('//'),
   'variable': prefix('$'),
 }
 
