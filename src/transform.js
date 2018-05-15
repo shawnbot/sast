@@ -1,14 +1,13 @@
-const select = require('unist-util-select')
 const invariant = require('invariant')
 const is = require('unist-util-is')
 const listify = require('./listify')
 const mapify = require('./mapify')
-const {COLON, COMMA} = require('./constants')
+const {COLON, COMMA, IDENT} = require('./constants')
 
 const isOperator = node => is([COLON, COMMA], node)
 
-const parens = node => {
-  const op = node.children.filter(isOperator)[0]
+const parentheses = node => {
+  const [op] = node.children.filter(isOperator)
   if (op) {
     switch (op.value) {
       case COLON.value: return mapify(node)
@@ -18,8 +17,15 @@ const parens = node => {
   return node
 }
 
+const property = node => {
+  const [ident] = node.children.filter(child => is(IDENT, child))
+  node.name = ident ? ident.value : null
+  return node
+}
+
 const transforms = {
-  'parentheses': parens,
+  parentheses,
+  property
 }
 
 module.exports = node => {
