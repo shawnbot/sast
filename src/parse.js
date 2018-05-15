@@ -12,9 +12,10 @@ const parse = (source, options) => {
     Object.assign({}, PARSE_DEFAULTS, options)
   )
   const tree = degonzify(gtree)
-  Object.defineProperty(tree.source = {}, 'string', {
+  tree.source = {}
+  Object.defineProperty(tree.source, 'string', {
     enumerable: false,
-    get: () => source,
+    get: () => source
   })
   return unistify(tree)
 }
@@ -25,7 +26,7 @@ const degonzify = src => {
     position: {
       start: src.start,
       end: src.end,
-    },
+    }
   }
   if (Array.isArray(src.content)) {
     node.children = src.content.map(degonzify)
@@ -41,5 +42,5 @@ const unistify = tree => {
 
 module.exports = {
   parse,
-  unistify,
+  unistify
 }
