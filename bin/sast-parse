@@ -16,7 +16,7 @@ const formatters = {
     return JSON.stringify(tree, null, ' '.repeat(indent))
   },
   'string': stringify,
-  'tree': tree => inspect.noColor(tree),
+  'tree': (tree, {color}) => color ? inspect(tree) : inspect.noColor(tree),
   'yaml': (tree, {pretty, indent, flowLevel}) => {
     const opts = pretty
       ? {indent: 2}
@@ -49,6 +49,11 @@ const yargs = require('yargs')
     choices: syntaxes,
     default: 'auto',
     type: 'string',
+  })
+  .option('color', {
+    desc: `Enable colored output for --format=tree`,
+    type: 'boolean',
+    alias: 'c',
   })
   .option('format', {
     desc: `Specify the output format`,
