@@ -1,14 +1,15 @@
 #!/usr/bin/env node
+const YAML = require('js-yaml')
 const fse = require('fs-extra')
 const inspect = require('unist-util-inspect')
 const is = require('unist-util-is')
 const remove = require('unist-util-remove')
 const removePosition = require('unist-util-remove-position')
-const YAML = require('js-yaml')
-const {jsonify, parse, stringify} = require('..')
 const visit = require('unist-util-visit')
+const {jsonify, parse, stringify} = require('..')
 
-const syntaxes = ['css', 'sass', 'scss', 'less']
+const syntaxes = ['auto', 'css', 'sass', 'scss', 'less']
+
 const formatters = {
   'json': (tree, {pretty, indent}) => {
     indent = pretty ? 2 : indent
@@ -43,18 +44,18 @@ const yargs = require('yargs')
     'Parse a CSS, Sass, SCSS, or Less file and output its syntax tree in one of several formats.'
   ].join('\n'))
   .option('syntax', {
-    desc: `Specify the sytax to parse as: ${syntaxes.join(', ')}`,
-    default: syntaxes[0],
     alias: 's',
+    desc: `Specify the sytax to parse, or infer from the filename (default)`,
+    choices: syntaxes,
+    default: 'auto',
     type: 'string',
-    coerce: validateChoice('syntax', syntaxes),
   })
   .option('format', {
-    desc: `Specify the output format: ${Object.keys(formatters).join(', ')}`,
+    desc: `Specify the output format`,
     type: 'string',
     alias: 'f',
     default: 'json',
-    coerce: validateChoice('format', Object.keys(formatters)),
+    choices: Object.keys(formatters),
   })
   .option('pretty', {
     desc: 'Output prettily (for "json" and "yaml" formats only)',
@@ -71,7 +72,7 @@ const yargs = require('yargs')
     type: 'boolean',
   })
   .option('no-position', {
-    desc: 'Preserve position data in the syntax tree before printing',
+    desc: 'Remove position data from the syntax tree before printing',
     alias: 'P',
     type: 'boolean',
   })
