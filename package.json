@@ -1,6 +1,6 @@
 {
   "name": "sast",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "Parse CSS, Sass, and SCSS into Unist syntax trees",
   "main": "index.js",
   "bin": {
