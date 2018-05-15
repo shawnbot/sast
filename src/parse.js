@@ -21,17 +21,18 @@ const parse = (source, options) => {
 }
 
 const degonzify = src => {
+  const {type, start, end, content} = src
   const node = {
-    type: src.type,
+    type,
     position: {
-      start: src.start,
-      end: src.end,
+      start,
+      end
     }
   }
-  if (Array.isArray(src.content)) {
-    node.children = src.content.map(degonzify)
+  if (Array.isArray(content)) {
+    node.children = content.map(degonzify)
   } else {
-    node.value = src.content
+    node.value = content
   }
   return node
 }
