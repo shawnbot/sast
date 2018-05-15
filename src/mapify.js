@@ -1,4 +1,3 @@
-const inspect = require('unist-util-inspect')
 const invariant = require('invariant')
 const is = require('unist-util-is')
 const split = require('./split')
