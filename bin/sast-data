@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 const fse = require('fs-extra')
+const minimatch = require('minimatch')
 const select = require('unist-util-select')
 const {parseFile, jsonify, stringify} = require('..')
 const YAML = require('js-yaml')
