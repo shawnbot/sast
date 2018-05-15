@@ -97,6 +97,9 @@ fse.readFile(input, 'utf8')
       // console.warn('[x] trimming the input')
       source = source.trim()
     }
+    if (options.syntax === 'auto') {
+      options.syntax = input.split('.').pop()
+    }
     return parse(source, options)
   })
   .catch(error => {
