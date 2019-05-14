@@ -41,6 +41,7 @@ const mods = {
   // NOTE: only hex values are 'color' nodes in gonzales-pe land
   'color': prefix('#'),
   'class': prefix('.'),
+  'id': prefix('#'),
   'list': parens,
   'map': parens,
   'multilineComment': wrap('/*', '*/'),
