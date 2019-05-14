@@ -1,17 +1,17 @@
-workflow "New workflow" {
-  on = "push"
+workflow "Install, test, publish" {
   resolves = ["publish"]
+  on = "push"
 }
 
-action "npm install" {
+action "install" {
   uses = "actions/npm@v2.0.0"
-  args = "install"
+  args = "ci"
 }
 
 action "test" {
   uses = "actions/npm@v2.0.0"
-  needs = ["npm install"]
   args = "test"
+  needs = ["install"]
 }
 
 action "publish" {
