@@ -25,7 +25,7 @@
     "fs-extra": "^4.0.2",
     "gonzales-pe": "^4.2.2",
     "invariant": "^2.2.2",
-    "js-yaml": "^3.10.0",
+    "js-yaml": "^3.13.1",
     "minimatch": "^3.0.4",
     "unist-util-find": "^1.0.1",
     "unist-util-inspect": "^4.1.1",
@@ -39,6 +39,6 @@
     "yargs": "^9.0.1"
   },
   "devDependencies": {
-    "ava": "^0.22.0"
+    "ava": "^1.4.1"
   }
 }
